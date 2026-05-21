@@ -1,0 +1,153 @@
+<div class="resume-analyzer">
+  <div class="row gy-4">
+    <div class="col-12 col-xl-5">
+      <div class="card shadow-sm p-4 h-100">
+        <h2 class="mb-4">Resume Upload</h2>
+
+        <div *ngIf="errorMessage" class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+
+        <div class="mb-3">
+          <label for="jobDescription" class="form-label">Job Description</label>
+          <textarea
+            id="jobDescription"
+            class="form-control"
+            rows="6"
+            [(ngModel)]="jobDescription"
+            placeholder="Paste the job description here (optional)">
+          </textarea>
+          <div class="form-text">
+            Optional. Leave blank to analyze the resume alone. The job description is not auto-extracted from the resume.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="resumeFile" class="form-label">Resume File</label>
+          <input
+            id="resumeFile"
+            type="file"
+            class="form-control"
+            accept=".pdf,.doc,.docx"
+            (change)="onFileSelected($event)">
+          <div class="form-text">
+            Choose your resume from your local computer. For example:
+            <strong>C:\Users\DELL\Downloads\Trinadh_Resume (2).pdf</strong>
+          </div>
+          <div *ngIf="selectedFile" class="form-text mt-1">
+            Selected file: {{ selectedFile.name }} • {{ selectedFile.size / 1024 | number:'1.0-0' }} KB
+          </div>
+          <div *ngIf="loading" class="alert alert-info py-2 mt-3 d-flex align-items-center">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span>{{ statusMessage }}</span>
+          </div>
+          <div *ngIf="!loading && statusMessage" class="form-text text-info mt-1">
+            {{ statusMessage }}
+          </div>
+        </div>
+
+        <div class="d-grid gap-2">
+          <button class="btn btn-primary" (click)="uploadResume()" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            {{ loading ? 'Analyzing...' : 'Analyze Resume' }}
+          </button>
+        </div>
+
+        <p class="text-muted small mt-3 mb-0">
+          Supports PDF, DOC, DOCX. Maximum size 8 MB.
+          <br>
+          Backend timeout: {{ backendTimeoutMs / 1000 }}s; quick local fallback after {{ localFallbackDelayMs / 1000 }}s.
+        </p>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-7">
+      <ng-container *ngIf="result; else emptyState">
+        <div class="card shadow-sm p-4 mb-3" id="analysis-report">
+          <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+            <div>
+              <h3 class="mb-1">Analysis Results</h3>
+              <p class="text-muted mb-0">AI-generated resume score and actionable feedback.</p>
+            </div>
+            <div class="text-end">
+              <div class="fs-1 fw-bold text-success">{{ result.score || '—' }}/100</div>
+              <div *ngIf="result.matchPercentage != null" class="text-info">
+                {{ result.matchPercentage }}% job match
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="result.summary" class="mb-4">
+            <h5>Profile Summary</h5>
+            <p>{{ result.summary }}</p>
+          </div>
+
+          <div class="row row-cols-1 row-cols-md-2 g-3">
+            <div class="col">
+              <div class="card analysis-card h-100 p-3">
+                <h6>Strengths</h6>
+                <ul *ngIf="result.strengths?.length; else noStrengths">
+                  <li *ngFor="let item of result.strengths">{{ item }}</li>
+                </ul>
+                <ng-template #noStrengths>
+                  <p class="text-muted mb-0">No strengths were returned.</p>
+                </ng-template>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="card analysis-card h-100 p-3">
+                <h6>Weaknesses</h6>
+                <ul *ngIf="result.weaknesses?.length; else noWeaknesses">
+                  <li *ngFor="let item of result.weaknesses">{{ item }}</li>
+                </ul>
+                <ng-template #noWeaknesses>
+                  <p class="text-muted mb-0">No weaknesses were returned.</p>
+                </ng-template>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="card analysis-card h-100 p-3">
+                <h6>Missing Skills</h6>
+                <ul *ngIf="result.missingSkills?.length; else noMissingSkills">
+                  <li *ngFor="let item of result.missingSkills">{{ item }}</li>
+                </ul>
+                <ng-template #noMissingSkills>
+                  <p class="text-muted mb-0">No missing skills were identified.</p>
+                </ng-template>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="card analysis-card h-100 p-3">
+                <h6>Suggestions</h6>
+                <ul *ngIf="result.suggestions?.length; else noSuggestions">
+                  <li *ngFor="let item of result.suggestions">{{ item }}</li>
+                </ul>
+                <ng-template #noSuggestions>
+                  <p class="text-muted mb-0">No suggestions were returned.</p>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="result.jobSummary" class="mt-4">
+            <h5>Job Comparison Summary</h5>
+            <p>{{ result.jobSummary }}</p>
+          </div>
+        </div>
+
+        <button class="btn btn-outline-secondary" (click)="downloadPdfReport()">
+          Download PDF Report
+        </button>
+      </ng-container>
+
+      <ng-template #emptyState>
+        <div class="card shadow-sm p-4 text-center text-muted">
+          <p class="mb-0">Upload a resume and click Analyze to see the AI feedback here.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+.resume-analyzer .analysis-card {
+  background: #f8f9fa;
+  border: 1px solid rgba(108, 117, 125, 0.16);
+}
+
+.resume-analyzer textarea.form-control {
+  min-height: 140px;
+}
+
+.resume-analyzer .card {
+  border-radius: 1rem;
+}
+
+.resume-analyzer .card h2,
+.resume-analyzer .card h3,
+.resume-analyzer .card h5,
+.resume-analyzer .card h6 {
+  margin-bottom: 1rem;
+}
